@@ -10,7 +10,7 @@ function App(){
  const [total,setTotal]=useState(0),[received,setReceived]=useState(0),[now,setNow]=useState(()=>Date.now());
  useEffect(()=>{const timer=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(timer)},[]);
  const remaining=Math.max(0,DEADLINE.getTime()-now);
- const daysLeft=Math.ceil(remaining/86400000);
+ const daysLeft=Math.floor(remaining/86400000);
  const countdown={days:Math.floor(remaining/86400000),hours:Math.floor(remaining/3600000)%24,minutes:Math.floor(remaining/60000)%60,seconds:Math.floor(remaining/1000)%60};
  const progress=Math.min(100,total/TARGET*100);
  async function refresh(){
