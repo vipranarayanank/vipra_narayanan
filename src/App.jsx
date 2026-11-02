@@ -12,7 +12,7 @@ function App(){
  const progress=Math.min(100,total/TARGET*100);
  async function refresh(){
   if(!supabase)return;
-  const [{data:u},{data:i},{data:s}]=await Promise.all([supabase.from('daily_updates').select('*').eq('published',true).order('created_at',{ascending:false}),supabase.from('income_entries').select('*').order('entry_date',{ascending:false}),supabase.auth.getSession()]);
+  const [{data:u},{data:i},{data:s}]=await Promise.all([supabase.from('daily_updates').select('*').eq('published',true).order('created_at',{ascending:false}),supabase.from('income_entries').select('id,source,amount,status,entry_date,created_at').order('entry_date',{ascending:false}),supabase.auth.getSession()]);
   if(u?.length)setUpdates(u); if(i){setEntries(i);setTotal(i.filter(x=>x.status==='approved'||x.status==='received').reduce((a,x)=>a+Number(x.amount),0));setReceived(i.filter(x=>x.status==='received').reduce((a,x)=>a+Number(x.amount),0));}
   const current=s?.session||null;setSession(current);
   if(current){const {data:a}=await supabase.from('admins').select('user_id').eq('user_id',current.user.id).maybeSingle();setIsAdmin(!!a);}
