@@ -7,8 +7,11 @@ const demo=[{id:'d1',title:'Day 1 — The first steps',body:'Starting the ₹1 l
 const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
 function App(){
  const [tab,setTab]=useState('journey'),[updates,setUpdates]=useState(demo),[entries,setEntries]=useState([]),[session,setSession]=useState(null),[isAdmin,setIsAdmin]=useState(false),[modal,setModal]=useState(false),[login,setLogin]=useState(false),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[form,setForm]=useState({title:'',body:'',category:'Daily log',earned_amount:'0'}),[income,setIncome]=useState({source:'Clipping',amount:'',status:'received',entry_date:new Date().toISOString().slice(0,10),note:''});
- const [total,setTotal]=useState(0),[received,setReceived]=useState(0);
- const daysLeft=Math.max(0,Math.ceil((DEADLINE-new Date())/86400000));
+ const [total,setTotal]=useState(0),[received,setReceived]=useState(0),[now,setNow]=useState(()=>Date.now());
+ useEffect(()=>{const timer=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(timer)},[]);
+ const remaining=Math.max(0,DEADLINE.getTime()-now);
+ const daysLeft=Math.ceil(remaining/86400000);
+ const countdown={days:Math.floor(remaining/86400000),hours:Math.floor(remaining/3600000)%24,minutes:Math.floor(remaining/60000)%60,seconds:Math.floor(remaining/1000)%60};
  const progress=Math.min(100,total/TARGET*100);
  async function refresh(){
   if(!supabase)return;
@@ -27,6 +30,7 @@ function App(){
  return <div className="app">
  <header className="top"><a className="brand" href="#"><span className="brandmark">₹</span><span>ONE LAKH<span className="subbrand">THE 59-DAY CHALLENGE</span></span></a><div className="topright"><span className="live"><i/> LIVE JOURNEY</span>{isAdmin&&<button className="iconbtn" onClick={logout} title="Sign out"><LogOut size={17}/></button>}</div></header>
  <main>
+ <div className="countdownbar"><span className="countdownlabel"><Clock3 size={14}/> TIME LEFT TO THE GOAL</span><div className="countdownunits"><div><b>{String(countdown.days).padStart(2,'0')}</b><small>DAYS</small></div><span>:</span><div><b>{String(countdown.hours).padStart(2,'0')}</b><small>HRS</small></div><span>:</span><div><b>{String(countdown.minutes).padStart(2,'0')}</b><small>MIN</small></div><span>:</span><div><b>{String(countdown.seconds).padStart(2,'0')}</b><small>SEC</small></div></div></div>
  <section className="hero"><div className="eyebrow"><span className="eyeline"/> PERSONAL CHALLENGE / 2026</div><h1>From zero<br/><em>to one lakh.</em></h1><p className="intro">Building income streams in public. Tracking every move. The goal is simple — earn ₹1,00,000 by December 31, 2026.</p>
  <div className="heroMeta"><span><Clock3 size={15}/> {daysLeft} DAYS LEFT</span><span><Target size={15}/> DEADLINE: 31 DEC 2026</span></div>
  <div className="progressCard"><div className="progressHead"><div><span className="mutedlabel">TOTAL EARNED / APPROVED</span><div className="bigmoney">{money(total)} <small>/ {money(TARGET)}</small></div></div><div className="percent">{progress.toFixed(1)}<small>%</small></div></div><div className="track"><div style={{width:progress+'%'}}/></div><div className="progressFoot"><span>{money(TARGET-total)} to go</span><span>{money(received)} received in hand</span></div></div>
